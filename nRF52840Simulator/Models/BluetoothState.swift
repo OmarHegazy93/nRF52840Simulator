@@ -82,6 +82,9 @@ class BluetoothManagerState {
     private let echoMessagesSubject = CurrentValueSubject<[EchoMessage], Never>([])
     private let lastErrorSubject = CurrentValueSubject<String?, Never>(nil)
     
+    // MARK: - Auto-restart Property
+    var shouldAutoRestart = false
+    
     // MARK: - Public Publishers
     var isAdvertisingPublisher: AnyPublisher<Bool, Never> {
         isAdvertisingSubject.eraseToAnyPublisher()

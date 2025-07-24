@@ -41,12 +41,20 @@ class BluetoothPeripheralManager: NSObject {
         // Use async to avoid state updates during view updates
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
+            let wasEnabled = self.currentState.isBluetoothEnabled
+            let wasAdvertising = self.currentState.isAdvertising
             let isEnabled = peripheralManager.state == .poweredOn
             self.currentState.isBluetoothEnabled = isEnabled
             
             switch peripheralManager.state {
             case .poweredOn:
                 self.currentState.clearError()
+                // Auto-restart advertising if we were advertising before and Bluetooth was disabled
+                if !wasEnabled && isEnabled && wasAdvertising {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                        self.startAdvertising()
+                    }
+                }
             case .poweredOff:
                 self.currentState.setError("Bluetooth is powered off")
             case .unauthorized:
@@ -80,6 +88,7 @@ class BluetoothPeripheralManager: NSObject {
         }
         
         setupService()
+        peripheralManager.removeAllServices()
         peripheralManager.add(service)
         
         let advertisementData: [String: Any] = [

@@ -49,11 +49,15 @@ struct ContentView: View {
                     }
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(viewModel.advertisingButtonColor)
+                    .background(viewModel.isButtonEnabled ? viewModel.advertisingButtonColor : Color.gray)
                     .foregroundColor(.white)
                     .cornerRadius(12)
+                    .opacity(viewModel.isButtonEnabled ? 1.0 : 0.6)
                 }
                 .disabled(!viewModel.isButtonEnabled)
+                .help(viewModel.isButtonEnabled ? 
+                      (viewModel.isAdvertising ? "Stop advertising to disconnect devices" : "Start advertising to allow device connections") :
+                      "Bluetooth must be enabled to start advertising")
                 
                 // Echo Messages
                 EchoMessagesView(

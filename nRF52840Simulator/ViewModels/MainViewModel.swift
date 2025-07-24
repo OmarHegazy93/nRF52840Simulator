@@ -78,16 +78,16 @@ class MainViewModel: ObservableObject {
         advertisingButtonTitle = isAdvertising ? "Stop Advertising" : "Start Advertising"
         advertisingButtonColor = isAdvertising ? .red : .green
         
-        // Update button enabled state
-        isButtonEnabled = isBluetoothEnabled
+        // Update button enabled state with more granular control
+        isButtonEnabled = isBluetoothEnabled && !isBluetoothInTransition()
         
-        // Update status text
+        // Update status text with more detailed information
         if !isBluetoothEnabled {
-            statusText = "Bluetooth is not available"
+            statusText = getBluetoothStatusText()
         } else if isAdvertising {
             statusText = "Advertising as '\(DeviceConstants.deviceName)' - \(connectedDevices.count) device(s) connected"
         } else {
-            statusText = "Not advertising"
+            statusText = "Ready to advertise - Bluetooth is available"
         }
         
         // Update status color
@@ -98,6 +98,30 @@ class MainViewModel: ObservableObject {
         } else {
             statusColor = .orange
         }
+    }
+    
+    private func isBluetoothInTransition() -> Bool {
+        // Check if Bluetooth is in a transitional state
+        // This could be expanded based on specific Bluetooth states
+        return false // For now, we'll keep it simple
+    }
+    
+    private func getBluetoothStatusText() -> String {
+        // Return more specific status messages based on the error
+        if let error = lastError {
+            if error.contains("powered off") {
+                return "Bluetooth is turned off - Please enable Bluetooth in Settings"
+            } else if error.contains("unauthorized") {
+                return "Bluetooth permission denied - Please allow Bluetooth access"
+            } else if error.contains("unsupported") {
+                return "Bluetooth is not supported on this device"
+            } else if error.contains("resetting") {
+                return "Bluetooth is resetting - Please wait"
+            } else {
+                return "Bluetooth is not available - \(error)"
+            }
+        }
+        return "Bluetooth is not available"
     }
     
     // MARK: - Public Methods
